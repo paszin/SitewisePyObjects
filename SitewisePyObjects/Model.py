@@ -60,8 +60,18 @@ class Model:
         return True
 
 
-    def delete(self):
-        pass
+    def delete(self, client=None):
+        """
+
+        :param client:
+        :return:
+        """
+        client = client or self._client
+        assert self.assetModelId
+        response = client.delete_asset_model(
+            assetModelId=self.assetModelId
+        )
+        return response
 
     def update(self):
         pass
