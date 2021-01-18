@@ -28,6 +28,21 @@ class Model:
         for k in keys:
             yield (k, getattr(self, k))
 
+    @staticmethod
+    def fetch_by_name(assetModelName, client=boto3.client("iotsitewise")):
+        """
+        :param assetModelName: Name of the model
+        :param client:
+        :return:
+        """
+        m = Model(client)
+        for e in client.list_asset_models()["assetModelSummaries"]:
+            if e["name"] == assetModelName:
+                m.assetModelId = e["id"]
+                m.fetch(client=client)
+                return m
+
+
 
     def fetch(self, client=None):
         """
@@ -73,5 +88,14 @@ class Model:
         )
         return response
 
-    def update(self):
-        pass
+    def update(self, client=None):
+        """
+
+        :param client:
+        :return:
+        """
+        client = client or self._client
+        assert self.assetModelId
+        required_keys = ["assetModelId", "assetModelName", "assetModelDescription", "assetModelProperties", "assetModelHierarchies", "assetModelCompositeModels"]
+        kwargs = {k: getattr(self, k) for k in required_keys}
+        return client.update_asset_model(**kwargs)
