@@ -1,0 +1,17 @@
+name: Pylint
+on: [push]
+jobs:
+  PythonLinting:
+    name: Python linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: fylein/python-pylint-github-action@v1
+        with:
+          args: pip3 install -r SitewisePyObjects/SitewisePyObjects/requirements.txt && pip3 install pylint==2.4.4 && pylint --rcfile=SitewisePyObjects/SitewisePyObjects/.pylintrc --ignore=SitewisePyObjects/SitewisePyObjects/tests SitewisePyObjects/SitewisePyObjects/ > pylint.txt || true
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Pylint Result
+          path: pylint.txt
+      - run: cat pylint.txt
+      - run: ./ci/compare.sh

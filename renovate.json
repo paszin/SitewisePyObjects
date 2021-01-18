@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "updateTypes": ["major"],
+      "labels": ["prio:high"]
+    }
+    , {
+      "updateTypes": ["patch", "pin", "digest"],
+      "automerge": true
+    }
+  ],
+  "schedule": ["every thursday after 6pm"]
+}
