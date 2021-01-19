@@ -1,6 +1,7 @@
+import time
 
 import boto3
-
+from .Asset import Asset
 
 class Model:
 
@@ -15,6 +16,8 @@ class Model:
         self.assetModelCreationDate = None
         self.assetModelLastUpdateDate = None
         self.assetModelStatus = None
+
+
 
         self._client = client
 
@@ -59,7 +62,7 @@ class Model:
         return True
 
 
-    def create(self, client=None):
+    def create(self, doWait=False, timeout=5, client=None):
         """
 
         :param client:
@@ -72,10 +75,17 @@ class Model:
         self.assetModelId = resp["assetModelId"]
         self.assetModelArn = resp["assetModelArn"]
         self.assetModelStatus = resp["assetModelStatus"]
+        while doWait:
+            self.fetch()
+            if self.assetModelStatus["state"] == "CREATING" or self.assetModelStatus["state"] == "PROPAGATING" or timeout <= 0:
+                time.sleep(0.2)
+                timeout -= 0.2
+            else:
+                break
         return True
 
 
-    def delete(self, client=None):
+    def delete(self, doWait=False, timeout=5, client=None):
         """
 
         :param client:
@@ -86,6 +96,16 @@ class Model:
         response = client.delete_asset_model(
             assetModelId=self.assetModelId
         )
+        while doWait:
+            try:
+                client.describe_asset_model(assetModelId=self.assetModelId)
+            except client.exceptions.ResourceNotFoundException:
+                return response
+            else:
+                if timeout <= 0:
+                    return response
+                time.sleep(0.2)
+                timeout -= 0.2
         return response
 
     def update(self, client=None):
@@ -99,3 +119,39 @@ class Model:
         required_keys = ["assetModelId", "assetModelName", "assetModelDescription", "assetModelProperties", "assetModelHierarchies", "assetModelCompositeModels"]
         kwargs = {k: getattr(self, k) for k in required_keys}
         return client.update_asset_model(**kwargs)
+
+    def get_assets(self, fetch_assets=False, client=None):
+        """
+        :param fetch_assets: boolean, set to True to fetch all information regarding
+        :param client:
+        :return: list of Assets
+        """
+        client = client or self._client
+        assets = []
+        for e in client.list_assets(assetModelId=self.assetModelId)["assetSummaries"]:
+            a = Asset(assetId=e["id"], assetArn=e["arn"], assetName=e["name"], assetModelId=e["assetModelId"], assetCreationDate=e["creationDate"], assetLastUpdateDate=e["lastUpdateDate"], assetStatus=e["status"])
+            if fetch_assets:
+                a.fetch()
+            assets.append(a)
+        return assets
+
+    def add_attribute(self, attributeName, attributeValue, atttributeDataType, doUpdate=True):
+        new_att = {
+            "name": attributeName,
+            "dataType": atttributeDataType,
+            "type": {
+                "attribute": {
+                    "defaultValue": attributeValue
+                },
+            }
+        }
+
+        self.assetModelProperties.append(new_att)
+
+        if doUpdate:
+            self.update()
+        return True
+
+
+
+

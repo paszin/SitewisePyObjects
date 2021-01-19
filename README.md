@@ -68,3 +68,50 @@ m = Model.fetch_by_name("A Model")
 
 ```
 
+```python
+# get all models with name "*Dummy*" and list their assets
+from SitewisePyObjects.Model import Model
+from SitewisePyObjects.Asset import Asset
+import boto3
+client = boto3.client("iotsitewise")
+
+filter_function = lambda name: "Dummy" in name
+
+for mi in client.list_asset_models()["assetModelSummaries"]:
+    if filter_function(mi["name"]):
+        m = Model.fetch_by_name(mi["name"])
+        print(m)
+        for a in m.get_assets():
+            print("\t", a)
+
+```
+
+```
+<Model: Pascals Dummy Model - 2803d879-d652-41e3-a89c-0d2481de800e>
+	 <Asset: Pascals Dummy Asset 1>
+     <Asset: Pascals Dummy Asset 2>
+<Model: Pascals Dummy Model Updated - 36f7c25d-48ce-4139-8c2d-8dd7b9ce68fb>
+	 <Asset: Pascals Dummy Asset>
+
+```
+
+# Features
+
+(only checked features are supported!)
+
+- [x] CRUD Operations for Models
+- [x] find Model by name
+- [ ] find Model by name out of 50+ models
+- [x] CRUD Operations for Asset
+- [x] find Asset by name and given model id
+- [x] get assets from Model
+- [ ] support for 50+ assets 
+- [ ] CRUD operations for tags
+- [ ] Update properties of Asset
+- [ ] Update measurements of Asset
+- [x] delete all Asset of a Model --> a.delete() for a in model.get_assets()
+- [ ] handle hierarchies
+- [x] add attribute to a Model
+- [x] wait for Asset deletions
+- [x] wait for Model deletions
+- [x] wait for Model creation
