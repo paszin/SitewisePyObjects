@@ -1,7 +1,7 @@
 import time
 
 import boto3
-from .Asset import Asset
+
 
 class Model:
 
@@ -127,6 +127,7 @@ class Model:
         :return: list of Assets
         """
         client = client or self._client
+        from .Asset import Asset
         assets = []
         for e in client.list_assets(assetModelId=self.assetModelId)["assetSummaries"]:
             a = Asset(assetId=e["id"], assetArn=e["arn"], assetName=e["name"], assetModelId=e["assetModelId"], assetCreationDate=e["creationDate"], assetLastUpdateDate=e["lastUpdateDate"], assetStatus=e["status"])

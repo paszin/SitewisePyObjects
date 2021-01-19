@@ -115,3 +115,4 @@ for mi in client.list_asset_models()["assetModelSummaries"]:
 - [x] wait for Asset deletions
 - [x] wait for Model deletions
 - [x] wait for Model creation
+- [ ] handle timestamps in AssetAttributes

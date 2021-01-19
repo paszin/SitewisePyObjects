@@ -2,6 +2,8 @@ import time
 
 import boto3
 
+from .AssetAttribute import AssetAttribute
+
 
 class Asset:
 
@@ -19,6 +21,7 @@ class Asset:
         self.assetStatus = kwargs.get("assetStatus")
 
         # these attributes are derived from the describe response and consts of specific objects
+        self._model = None
         self._attributes = None
         self.measurements = None
         self.transforms = None
@@ -58,7 +61,23 @@ class Asset:
                 a.fetch(client=client)
                 return a
 
-    def fetch(self, client=None):
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, m):
+        raise NotImplementedError("It is not possible to set the model.")
+
+    @property
+    def attributes(self):
+        return self._attributes
+
+    @attributes.setter
+    def attributes(self, m):
+        raise NotImplementedError("It is not possible to set the attributes.")
+
+    def fetch(self, deep=False, client=None):
         """
         fetches and updates attributes using the sitewise api
         :param client:
@@ -66,10 +85,21 @@ class Asset:
         """
         client = client or self._client
         assert self.assetId
-        model = client.describe_asset(assetId=self.assetId)
-        for k, v in model.items():
+        asset = client.describe_asset(assetId=self.assetId)
+        for k, v in asset.items():
             if hasattr(self, k):
                 setattr(self, k, v)
+
+        if deep:
+            # extract attributes
+            from .Model import Model
+            self._model = Model(assetModelId=self.assetModelId)
+            self._model.fetch()
+            self._attributes = []
+            for ap in self.assetProperties:
+                aa = AssetAttribute(assetId=self.assetId, propertyId=ap["id"])
+                aa.fetch()
+                self._attributes.append(aa)
         return True
 
 
