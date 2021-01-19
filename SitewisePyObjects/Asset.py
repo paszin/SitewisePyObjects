@@ -22,10 +22,7 @@ class Asset:
 
         # these attributes are derived from the describe response and consts of specific objects
         self._model = None
-        self._attributes = None
-        self.measurements = None
-        self.transforms = None
-        self.metrics = None
+        self._attributes = {}
         self.associated_assets = None
 
         self._client = client
@@ -95,11 +92,11 @@ class Asset:
             from .Model import Model
             self._model = Model(assetModelId=self.assetModelId)
             self._model.fetch()
-            self._attributes = []
+            self._attributes = {}
             for ap in self.assetProperties:
-                aa = AssetAttribute(assetId=self.assetId, propertyId=ap["id"])
+                aa = AssetAttribute(assetId=self.assetId, propertyId=ap["id"], name=ap["name"], dataType=ap["dataType"])
                 aa.fetch()
-                self._attributes.append(aa)
+                self._attributes[ap["name"]] = aa
         return True
 
     def create(self, doWait=False, timeout=5, doFetch=False, client=None):

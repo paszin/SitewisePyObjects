@@ -124,13 +124,34 @@ a
 
 
 ```python
+# get all information from sitewise
+a.fetch(deep=True) #deep fetch means fetching model and attributes as well
+print(a)
+print(a.model)
+print(a.attributes)
 
+```
+
+```
+<Asset: Pascals Dummy Asset>
+<Model: My Dummy Model - b731b66c-a013-4fa3-a3d3-84eb0970f923>
+{'location': <location: None>, 'id': <id: None>, 'intensity': <intensity: None>}
 
 ```
 
 
 ```python
+# update an attribute
+a.attributes["intensity"].update(value=100)
+print(a.attributes["intensity"])
+a.fetch(deep=True)
+# print again, to verify that the data got uploaded
+print(a.attributes["intensity"])
+```
 
+```
+<intensity: 100>
+<intensity: 100>
 
 ```
 
@@ -160,9 +181,9 @@ a
 - [x] get assets from Model
 - [ ] support for 50+ assets
 - [ ] CRUD operations for tags
-- [ ] Update properties of Asset
-- [ ] Update measurements of Asset
-- [x] delete all Asset of a Model --> a.delete() for a in model.get_assets()
+- [x] Update properties of Asset (SHOULD WORK!)
+- [x] Update measurements of Asset
+- [x] delete all Asset of a Model --> `a.delete() for a in model.get_assets()`
 - [ ] handle hierarchies
 - [x] add attribute to a Model
 - [x] wait for Asset deletions
