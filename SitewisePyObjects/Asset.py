@@ -73,7 +73,7 @@ class Asset:
         return True
 
 
-    def create(self, doWait=False, timeout=5, client=None):
+    def create(self, doWait=False, timeout=5, doFetch=False, client=None):
         """
 
         :param client:
@@ -83,10 +83,36 @@ class Asset:
         client = client or self._client
         required_keys = ["assetName", "assetModelId"]
         kwargs = {k: getattr(self, k) for k in required_keys}
-        resp = client.create_asset(**kwargs)
+        attemps = 30
+        while True:
+            try:
+                resp = client.create_asset(**kwargs)
+            except:
+                time.sleep(0.2)
+                attemps -= 1
+            else:
+                break
+            if attemps == 0:
+                # one last try to raise the original exception
+                resp = client.create_asset(**kwargs)
+
         self.assetId = resp["assetId"]
         self.assetArn = resp["assetArn"]
         self.assetStatus = resp["assetStatus"]
+        c = timeout
+        while doWait:
+            try:
+                self.fetch()
+            except client.exceptions.ConflictingOperationException:
+                time.sleep(0.2)
+                c -= 0.2
+            if self.assetStatus["state"] == "CREATING" or self.assetStatus["state"] == "PROPAGATING" and c > 0:
+                time.sleep(0.2)
+                c -= 0.2
+            else:
+                break
+        if doFetch:
+            self.fetch()
         return True
 
     def delete(self, doWait=False, timeout=5, client=None):
