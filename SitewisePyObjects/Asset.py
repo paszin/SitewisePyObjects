@@ -28,7 +28,6 @@ class Asset:
         self.metrics = None
         self.associated_assets = None
 
-
         self._client = client
 
         self._repr_template = "<Asset: {assetName}>"
@@ -37,7 +36,8 @@ class Asset:
         return self._repr_template.format(**dict(self))
 
     def __iter__(self):
-        keys = ["assetId", "assetArn", "assetName", "assetModelId", "assetProperties", "assetHierarchies", "assetCompositeModels"]
+        keys = ["assetId", "assetArn", "assetName", "assetModelId", "assetProperties", "assetHierarchies",
+                "assetCompositeModels"]
         for k in keys:
             yield (k, getattr(self, k))
 
@@ -101,7 +101,6 @@ class Asset:
                 aa.fetch()
                 self._attributes.append(aa)
         return True
-
 
     def create(self, doWait=False, timeout=5, doFetch=False, client=None):
         """
@@ -179,4 +178,3 @@ class Asset:
         required_keys = ["assetName", "assetModelId"]
         kwargs = {k: kwargs.get(k, getattr(self, k)) for k in required_keys}
         return client.update_asset(**kwargs)
-

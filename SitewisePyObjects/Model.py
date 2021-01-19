@@ -136,17 +136,32 @@ class Model:
             assets.append(a)
         return assets
 
-    def add_attribute(self, attributeName, attributeValue, atttributeDataType, doUpdate=True):
+    def add_attribute(self, name, dataType, defaultValue=None, doUpdate=True):
+
+        inner_part = {"defaultValue": defaultValue}
+        if defaultValue is None:
+            inner_part = {}
         new_att = {
-            "name": attributeName,
-            "dataType": atttributeDataType,
+            "name": name,
+            "dataType": dataType,
             "type": {
-                "attribute": {
-                    "defaultValue": attributeValue
-                },
+                "attribute": inner_part
             }
         }
 
+        self.assetModelProperties.append(new_att)
+
+        if doUpdate:
+            self.update()
+        return True
+
+    def add_measurement(self, name, unit, dataType, doUpdate=True):
+
+        new_att = {
+            "name": name,
+            "dataType": dataType,
+            "unit": unit,
+            "type": {"measurement": {}}}
         self.assetModelProperties.append(new_att)
 
         if doUpdate:

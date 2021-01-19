@@ -77,7 +77,6 @@ class AssetAttribute:
         self.value = value or self.value
         entry = get_update_entry(self.assetId, self.propertyId, self.value,
                                  dtype or self.dtype or type(self.value))
-        print(entry)
         response = self._client.batch_put_asset_property_value(
             entries=[entry]
         )

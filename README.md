@@ -30,7 +30,11 @@ from SitewisePyObjects.Model import Model
 ```python
 # create a new model
 m = Model(assetModelName="My Dummy Model", assetModelDescription="Created with SitewisePyObjects")
-m.create()
+m.create(doWait=True) # doWait=True means wait till the model state changes to ACTIVE
+m.add_attribute("location", "STRING", doUpdate=False)
+m.add_attribute("id", "STRING", doUpdate=False)
+m.add_measurement("intensity", "x", "INTEGER") # only update once (less request to aws)
+
 ```
 
 ```python
@@ -43,10 +47,10 @@ for k, v in m:
 ```
 <Model: My Dummy Model - 37d022c2-ab15-47c6-9add-662f7d800367>
 assetModelId : 37d022c2-ab15-47c6-9add-662f7d800367
-assetModelArn : arn:aws:iotsitewise:eu-central-1:307341958296:asset-model/37d022c2-ab15-47c6-9add-662f7d800367
+assetModelArn : arn:aws:...367
 assetModelName : Pascals Dummy Model Updated
 assetModelDescription : Created with SitewisePyObjects
-assetModelProperties : []
+assetModelProperties : [...]
 assetModelHierarchies : []
 assetModelCompositeModels : []
 ```
@@ -95,6 +99,55 @@ for mi in client.list_asset_models()["assetModelSummaries"]:
 
 ```
 
+## Asset
+
+```python
+# create an asset if not exists, otherwise fetch from sitewise
+# m is a Model
+from SitewisePyObjects.Asset import Asset
+
+assetName = "Pascals Dummy Asset"
+a = Asset(assetName=assetName, assetModelId=m.assetModelId)
+try:
+    a.create()
+except:
+    print("Unable to create, try to fetch from Sitewise")
+    a = Asset.fetch_by_name(assetName)
+    if a is None:
+        print("not a top level asset -> use assetModelId")
+        a = Asset.fetch_by_name(assetName, assetModelId=m.assetModelId)
+else:
+    print("created")
+a
+
+```
+
+
+```python
+
+
+```
+
+
+```python
+
+
+```
+
+
+```python
+
+
+```
+
+
+```python
+
+
+```
+
+
+
 # Features
 
 (only checked features are supported!)
@@ -105,7 +158,7 @@ for mi in client.list_asset_models()["assetModelSummaries"]:
 - [x] CRUD Operations for Asset
 - [x] find Asset by name and given model id
 - [x] get assets from Model
-- [ ] support for 50+ assets 
+- [ ] support for 50+ assets
 - [ ] CRUD operations for tags
 - [ ] Update properties of Asset
 - [ ] Update measurements of Asset
@@ -116,3 +169,6 @@ for mi in client.list_asset_models()["assetModelSummaries"]:
 - [x] wait for Model deletions
 - [x] wait for Model creation
 - [ ] handle timestamps in AssetAttributes
+- [x] update measurement of Asset
+- [ ] add transform to Model
+- [ ] add metric to Model
