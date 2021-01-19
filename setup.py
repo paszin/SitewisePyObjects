@@ -15,12 +15,11 @@ setuptools.setup(
     description="Functions for this and that",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/paszin/",
+    url="https://github.com/paszin/SitewisePyObjects",
     packages=setuptools.find_packages(),
-    install_requires=["trimesh", "numpy"],
+    install_requires=["boto3"],
     entry_points={
         'console_scripts': [
-            "tx-calibrate = Package.bin.tx:main",
         ]
     },
     classifiers=[
